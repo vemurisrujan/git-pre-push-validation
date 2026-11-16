@@ -37,8 +37,12 @@ steps:
     
   # Step 4: Run automated tests
   - script: |
-      python -m pytest -v
+      python -m pytest -v 
     displayName: 'Run automated tests'
+  
+  - script: |
+      python -m pytest -v --cov=app --cov-report=xml:coverage.xml
+    displayName: 'Run tests with coverage'
 
   # Step 5: Run Ruff lint
   - script: |
