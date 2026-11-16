@@ -1,4 +1,3 @@
-
 trigger:
   branches:
     include:
@@ -10,29 +9,76 @@ pr:
       - master
 
 pool:
-  vmImage: 'ubuntu-latest'
+  name: 'Default'
 
 steps:
-  - task: UsePythonVersion@0
-    displayName: 'Set up Python'
-    inputs:
-      versionSpec: '3.11'
-      architecture: 'x64'
+  # Step 1: Verify Python installation
+  - powershell: |
+      python --version
+      python -m pip --version
+    displayName: 'Verify installed Python'
 
+  # Step 2: Prepare SonarQube analysis
+  - task: SonarQubePrepare@8
+    displayName: 'Prepare SonarQube Analysis'
+    inputs:
+      SonarQube: 'Vemuri_Sonarqube'
+      scannerMode: 'cli'
+      configMode: 'manual'
+      cliProjectKey: 'git-pre-push-validation_git-pre-push-validation_893fae19-0361-43e2-acc2-c308cc04e4bc'
+      cliProjectName: 'git-pre-push-validation'
+      cliSources: '.'
+
+   # Step 3: Install Python dependencies
   - script: |
       python -m pip install --upgrade pip
       pip install -r requirements.txt
     displayName: 'Install dependencies'
-
+    
+  # Step 4: Run automated tests
   - script: |
       python -m pytest -v
     displayName: 'Run automated tests'
 
+  # Step 5: Run Ruff lint
   - script: |
       python -m ruff check .
     displayName: 'Run Ruff lint'
 
+  # Step 6: Verify Python formatting
   - script: |
       python -m ruff format --check .
     displayName: 'Check Python formatting'
 
+  # Step 7: Verify Java available to the agent
+  - powershell: |
+      Write-Host "JAVA_HOME=$env:JAVA_HOME"
+
+      if (-not $env:JAVA_HOME) {
+          throw "JAVA_HOME is not available to the Azure DevOps agent."
+      }
+
+      $javaPath = Join-Path $env:JAVA_HOME "bin\java.exe"
+
+      if (-not (Test-Path $javaPath)) {
+          throw "Java executable not found at $javaPath"
+      }
+
+      & $javaPath -version
+
+      if ($LASTEXITCODE -ne 0) {
+          throw "Java version check failed."
+      }
+    displayName: 'Verify Java for Azure Agent'
+
+  # Step 8: Run SonarQube analysis
+  - task: SonarQubeAnalyze@8
+    displayName: 'Run SonarQube Analysis'
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+
+  # Step 9: Publish Quality Gate result
+  - task: SonarQubePublish@8
+    displayName: 'Publish SonarQube Quality Gate'
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+    inputs:
+      pollingTimeoutSec: '300'
