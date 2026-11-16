@@ -11,6 +11,10 @@ def test_application_starts():
         result.stdout.strip()
         == "Git Pre-Push Validation Application Started Successfully"
     )
+    assert (
+            result.stdout.strip()
+            == "Git Azure Pipeline Validation Application Started Successfully"
+        )
 
 
 def test_application_exit_code():
