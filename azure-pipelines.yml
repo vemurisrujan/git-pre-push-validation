@@ -19,7 +19,7 @@ steps:
     displayName: 'Verify installed Python'
 
   # Step 2: Prepare SonarQube analysis
-  - task: SonarQubePrepare@7
+  - task: SonarQubePrepare@8
     displayName: 'Prepare SonarQube Analysis'
     inputs:
       SonarQube: 'Vemuri_Sonarqube'
@@ -76,12 +76,12 @@ steps:
     displayName: 'Verify Java for Azure Agent'
 
   # Step 8: Run SonarQube analysis
-  - task: SonarQubeAnalyze@7
+  - task: SonarQubeAnalyze@8
     displayName: 'Run SonarQube Analysis'
     condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
 
   # Step 9: Publish Quality Gate result
-  - task: SonarQubePublish@7
+  - task: SonarQubePublish@8
     displayName: 'Publish SonarQube Quality Gate'
     condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
     inputs:
