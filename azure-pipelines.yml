@@ -40,11 +40,10 @@ steps:
       cliProjectKey: 'git-pre-push-validation_git-pre-push-validation_893fae19-0361-43e2-acc2-c308cc04e4bc'
       cliProjectName: 'git-pre-push-validation'
       cliSources: '.'
-      extraProperties: >
-       -Dsonar.python.version=3.14
-       -Dsonar.sources=app
-       -Dsonar.tests=tests
-       -Dsonar.python.coverage.reportPaths=coverage.xml
+      extraProperties: |
+        sonar.python.version=3.14
+        sonar.tests=tests
+        sonar.python.coverage.reportPaths=coverage.xml
     
   # Step 5: Run automated tests  
   - script: |
