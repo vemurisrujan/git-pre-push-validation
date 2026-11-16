@@ -1,6 +1,5 @@
 import subprocess
 
-
 def test_application_starts():
     result = subprocess.run(
         ["python", "app/main.py"], check=False, capture_output=True, text=True
@@ -16,8 +15,6 @@ def test_application_starts():
     actual_output = result.stdout.strip().splitlines()
 
     assert actual_output == expected_output
-
-
 
 def test_application_exit_code():
     result = subprocess.run(
