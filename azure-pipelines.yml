@@ -17,23 +17,6 @@ steps:
   - checkout: self
     fetchDepth: 0
 
-  # Step 2: Test Docker Executable
-  - powershell: |
-      $docker = "C:\Users\vemur\AppData\Local\Programs\DockerDesktop\resources\bin\docker.exe"
-
-      Write-Host "Checking Docker executable..."
-
-      if (-not (Test-Path $docker)) {
-          throw "Docker executable not found: $docker"
-      }
-
-      & $docker --version
-
-      if ($LASTEXITCODE -ne 0) {
-          throw "Docker CLI execution failed."
-      }
-    displayName: 'Test Docker executable using absolute path'
-
   # Step 2: Verify Docker installation
   - powershell: |
       docker --version
