@@ -7,10 +7,15 @@ def test_application_starts():
     )
 
     assert result.returncode == 0
-    assert (
-        result.stdout.strip()
-        == "Git Pre-Push Validation Application Started Successfully"
-    )
+
+    expected_output = [
+        "Git Pre-Push Validation Application Started Successfully",
+        "Git Azure Pipeline Validation Application Started Successfully",
+    ]
+
+    actual_output = result.stdout.strip().splitlines()
+
+    assert actual_output == expected_output
 
 
 def test_application_exit_code():
