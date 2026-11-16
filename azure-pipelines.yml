@@ -39,7 +39,7 @@ steps:
       configMode: 'manual'
       cliProjectKey: 'git-pre-push-validation_git-pre-push-validation_893fae19-0361-43e2-acc2-c308cc04e4bc'
       cliProjectName: 'git-pre-push-validation'
-      cliSources: '.'
+      cliSources: 'app'
       extraProperties: |
         sonar.python.version=3.14
         sonar.tests=tests
