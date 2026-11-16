@@ -74,9 +74,11 @@ steps:
   # Step 8: Run SonarQube analysis
   - task: SonarQubeAnalyze@8
     displayName: 'Run SonarQube Analysis'
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
 
   # Step 9: Publish Quality Gate result
   - task: SonarQubePublish@8
     displayName: 'Publish SonarQube Quality Gate'
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
     inputs:
       pollingTimeoutSec: '300'
