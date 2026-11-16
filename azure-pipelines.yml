@@ -12,15 +12,27 @@ pool:
   name: 'Default'
 
 steps:
-  # Step 1: Verify Python installation
+
+  # Step 1: Checkout complete Git history
+  - checkout: self
+    fetchDepth: 0
+
+  # Step 2: Verify Python installation
   - powershell: |
       python --version
       python -m pip --version
     displayName: 'Verify installed Python'
+  
+  # Step 3: Install Python dependencies
+  - script: |
+      python -m pip install --upgrade pip
+      pip install -r requirements.txt
+    displayName: 'Install dependencies'
 
-  # Step 2: Prepare SonarQube analysis
+  # Step 4: Prepare SonarQube analysis
   - task: SonarQubePrepare@8
     displayName: 'Prepare SonarQube Analysis'
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
     inputs:
       SonarQube: 'Vemuri_Sonarqube'
       scannerMode: 'cli'
@@ -28,33 +40,28 @@ steps:
       cliProjectKey: 'git-pre-push-validation_git-pre-push-validation_893fae19-0361-43e2-acc2-c308cc04e4bc'
       cliProjectName: 'git-pre-push-validation'
       cliSources: '.'
-
-   # Step 3: Install Python dependencies
-  - script: |
-      python -m pip install --upgrade pip
-      pip install -r requirements.txt
-    displayName: 'Install dependencies'
+      extraProperties: >
+       -Dsonar.python.version=3.14
+       -Dsonar.sources=app
+       -Dsonar.tests=tests
+       -Dsonar.python.coverage.reportPaths=coverage.xml
     
-  # Step 4: Run automated tests
-  - script: |
-      python -m pytest -v 
-    displayName: 'Run automated tests'
-  
+  # Step 5: Run automated tests  
   - script: |
       python -m pytest -v --cov=app --cov-report=xml:coverage.xml
     displayName: 'Run tests with coverage'
 
-  # Step 5: Run Ruff lint
+  # Step 6: Run Ruff lint
   - script: |
       python -m ruff check .
     displayName: 'Run Ruff lint'
 
-  # Step 6: Verify Python formatting
+  # Step 7: Verify Python formatting
   - script: |
       python -m ruff format --check .
     displayName: 'Check Python formatting'
 
-  # Step 7: Verify Java available to the agent
+  # Step 8: Verify Java available to the agent
   - powershell: |
       Write-Host "JAVA_HOME=$env:JAVA_HOME"
 
@@ -75,12 +82,12 @@ steps:
       }
     displayName: 'Verify Java for Azure Agent'
 
-  # Step 8: Run SonarQube analysis
+  # Step 9: Run SonarQube analysis
   - task: SonarQubeAnalyze@8
     displayName: 'Run SonarQube Analysis'
     condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
 
-  # Step 9: Publish Quality Gate result
+  # Step 10: Publish Quality Gate result
   - task: SonarQubePublish@8
     displayName: 'Publish SonarQube Quality Gate'
     condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
