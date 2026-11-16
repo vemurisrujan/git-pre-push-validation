@@ -10,7 +10,7 @@ pr:
       - master
 
 pool:
-  vmImage: 'ubuntu-latest'
+  vmImage: 'Default'
 
 steps:
   - task: UsePythonVersion@0
@@ -35,4 +35,21 @@ steps:
   - script: |
       python -m ruff format --check .
     displayName: 'Check Python formatting'
+  
+  - task: SonarQubePrepare@8
+    inputs:
+      SonarQube: 'Vemuri_Sonarqube'
+      scannerMode: 'cli'
+      configMode: 'manual'
+      cliProjectKey: 'git-pre-push-validation_git-pre-push-validation_893fae19-0361-43e2-acc2-c308cc04e4bc'
+      cliProjectName: 'git-pre-push-validation'
+      cliSources: '.'
+
+  - task: SonarQubeAnalyze@8
+    inputs:
+      jdkversion: 'JAVA_HOME_17_X64'
+  
+  - task: SonarQubePublish@8
+    inputs:
+      pollingTimeoutSec: '300'
 
